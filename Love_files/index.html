@@ -1,4 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0027)http://itzoo.info/love.html -->
 <html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
@@ -6,39 +7,6 @@
     <title>Love</title>
 
     <link type="text/css" rel="stylesheet" href="assets/css/styles.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        #main {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        #wrap {
-            width: 90%;
-            max-width: 800px;
-            text-align: center;
-        }
-        #clock-box {
-            margin-top: 20px;
-        }
-        canvas {
-            max-width: 100%;
-            height: auto;
-        }
-        @media (orientation: landscape) {
-            #main {
-                flex-direction: row;
-            }
-        }
-    </style>
     <script type="text/javascript" src="assets/js/jquery.min.js"></script>
     <script type="text/javascript" src="assets/js/jscex.min.js"></script>
     <script type="text/javascript" src="assets/js/jscex-parser.js"></script>
@@ -92,7 +60,7 @@
         <audio id="aud"  src="http://music.163.com/song/media/outer/url?id=1969013657.mp3" autoplay="autoplay"></audio>
     </div>
     <script>
-    //遇见日期写在这里，倒计时用
+	//遇见日期写在这里，倒计时用
         var time="2022-7-2"
 
         window.onload = function () {
@@ -196,7 +164,84 @@
                     $await(Jscex.Async.sleep(10));
                 }
             }));
+
+            var growAnimate = eval(Jscex.compile("async", function () {
+                do {
+                    tree.grow();
+                    $await(Jscex.Async.sleep(10));
+                } while (tree.canGrow());
+            }));
+
+            var flowAnimate = eval(Jscex.compile("async", function () {
+                do {
+                    tree.flower(2);
+                    $await(Jscex.Async.sleep(10));
+                } while (tree.canFlower());
+            }));
+
+            var moveAnimate = eval(Jscex.compile("async", function () {
+                tree.snapshot("p1", 240, 0, 610, 680);
+                while (tree.move("p1", 500, 0)) {
+                    foot.draw();
+                    $await(Jscex.Async.sleep(10));
+                }
+                foot.draw();
+                tree.snapshot("p2", 500, 0, 610, 680);
+
+                // 会有闪烁不得意这样做, (＞﹏＜)
+                canvas.parent().css("background", "url(" + tree.toDataURL('image/png') + ")");
+                canvas.css("background", "#ffe");
+                $await(Jscex.Async.sleep(300));
+                canvas.css("background", "none");
+            }));
+
+            var jumpAnimate = eval(Jscex.compile("async", function () {
+                var ctx = tree.ctx;
+                while (true) {
+                    tree.ctx.clearRect(0, 0, width, height);
+                    tree.jump();
+                    foot.draw();
+                    $await(Jscex.Async.sleep(25));
+                }
+            }));
+
+            var textAnimate = eval(Jscex.compile("async", function () {
+                var together = new Date();
+                var time_list=time.split("-")
+            
+                console.log("时间",time_list);
+                together.setFullYear(parseInt(time_list[0]),parseInt(time_list[1])-1, parseInt(time_list[2]));
+                together.setHours(0);
+                together.setMinutes(0);
+                together.setSeconds(0);
+                together.setMilliseconds(0);
+
+                $("#code").show().typewriter();
+                $("#clock-box").fadeIn(500);
+                while (true) {
+                    timeElapse(together);
+                    $await(Jscex.Async.sleep(1000));
+                }
+            }));
+
+            
+
+            var runAsync = eval(Jscex.compile("async", function () {
+                $await(seedAnimate());
+                $await(growAnimate());
+                $await(flowAnimate());
+                $await(moveAnimate());
+
+                textAnimate().start();
+
+                $await(jumpAnimate());
+            }));
+
+            runAsync().start();
+        })();
     </script>
+
+
 
 </body>
 
